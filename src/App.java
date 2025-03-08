@@ -4,10 +4,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class App { 
+public class App {
 
-    private static Map<String, List<Integer>> studentGrades = new HashMap<>();
+    private static Map<String, List<Assignment>> studentGrades = new HashMap<>();
     private static Scanner scanner = new Scanner(System.in);
+
+    static class Assignment {
+        String type;
+        int grade;
+        double weight;
+
+        public Assignment(String type, int grade, double weight) {
+            this.type = type;
+            this.grade = grade;
+            this.weight = weight;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + type + ": " + grade + ", weight: " + weight + ")";
+        }
+    }
+
+    private static final Map<String, Double> ASSIGNMENT_WEIGHTS = new HashMap<>() {{
+        put("Homework", 0.15);
+        put("Exams", 0.2);
+        put("Reading", 0.1);
+        put("Groupwork", 0.15);
+        put("Projects", 0.4);
+    }};
 
     public static void main(String[] args) {
         while (true) {
@@ -20,10 +45,10 @@ public class App {
     private static void displayMenu() {
         System.out.println("\nStudent Grade Book Menu:");
         System.out.println("1. Add Student");
-        System.out.println("2. Add Grade");
-        System.out.println("3. Update Grade");
-        System.out.println("4. Calculate Average Grade");
-        System.out.println("5. Display all students and grades");
+        System.out.println("2. Add Assignment");
+        System.out.println("3. Update Assignment");
+        System.out.println("4. Calculate Weighted Average Grade");
+        System.out.println("5. Display all students and assignments");
         System.out.println("6. Exit");
         System.out.print("Enter your choice: ");
     }
@@ -44,13 +69,13 @@ public class App {
                 addStudent();
                 break;
             case 2:
-                addGrade();
+                addAssignment();
                 break;
             case 3:
-                updateGrade();
+                updateAssignment();
                 break;
             case 4:
-                calculateAverageGrade();
+                calculateWeightedAverageGrade();
                 break;
             case 5:
                 displayAllGrades();
@@ -74,11 +99,23 @@ public class App {
         }
     }
 
-    private static void addGrade() {
+    private static void addAssignment() {
         System.out.print("Enter student name: ");
         String name = scanner.nextLine();
         if (!studentGrades.containsKey(name)) {
             System.out.println("Student not found.");
+            return;
+        }
+
+        System.out.println("Select assignment type:");
+        for (String type : ASSIGNMENT_WEIGHTS.keySet()) {
+            System.out.println("- " + type);
+        }
+        System.out.print("Enter assignment type: ");
+        String type = scanner.nextLine();
+
+        if (!ASSIGNMENT_WEIGHTS.containsKey(type)) {
+            System.out.println("Invalid assignment type.");
             return;
         }
 
@@ -88,15 +125,16 @@ public class App {
             scanner.next();
             return;
         }
-
         int grade = scanner.nextInt();
         scanner.nextLine();
 
-        studentGrades.get(name).add(grade);
-        System.out.println("Grade added successfully.");
+        double weight = ASSIGNMENT_WEIGHTS.get(type);
+
+        studentGrades.get(name).add(new Assignment(type, grade, weight));
+        System.out.println("Assignment added successfully.");
     }
 
-    private static void updateGrade() {
+    private static void updateAssignment() {
         System.out.print("Enter student name: ");
         String name = scanner.nextLine();
         if (!studentGrades.containsKey(name)) {
@@ -104,13 +142,13 @@ public class App {
             return;
         }
 
-        List<Integer> grades = studentGrades.get(name);
-        if (grades.isEmpty()) {
-            System.out.println("No grades found for this student.");
+        List<Assignment> assignments = studentGrades.get(name);
+        if (assignments.isEmpty()) {
+            System.out.println("No assignments found for this student.");
             return;
         }
 
-        System.out.print("Enter the index of the grade to update (0-" + (grades.size() - 1) + "): ");
+        System.out.print("Enter the index of the assignment to update (0-" + (assignments.size() - 1) + "): ");
         if (!scanner.hasNextInt()) {
             System.out.println("Invalid index input.");
             scanner.next();
@@ -119,7 +157,7 @@ public class App {
         int index = scanner.nextInt();
         scanner.nextLine();
 
-        if (index < 0 || index >= grades.size()) {
+        if (index < 0 || index >= assignments.size()) {
             System.out.println("Invalid index.");
             return;
         }
@@ -133,11 +171,12 @@ public class App {
         int newGrade = scanner.nextInt();
         scanner.nextLine();
 
-        grades.set(index, newGrade);
-        System.out.println("Grade updated successfully.");
+        Assignment updatedAssignment = assignments.get(index);
+        updatedAssignment.grade = newGrade;
+        System.out.println("Assignment updated successfully.");
     }
 
-    private static void calculateAverageGrade() {
+    private static void calculateWeightedAverageGrade() {
         System.out.print("Enter student name: ");
         String name = scanner.nextLine();
         if (!studentGrades.containsKey(name)) {
@@ -145,37 +184,50 @@ public class App {
             return;
         }
 
-        List<Integer> grades = studentGrades.get(name);
-        if (grades.isEmpty()) {
-            System.out.println("No grades found for this student.");
+        List<Assignment> assignments = studentGrades.get(name);
+        if (assignments.isEmpty()) {
+            System.out.println("No assignments found for this student.");
             return;
         }
 
-        double sum = 0;
-        for (int grade : grades) {
-            sum += grade;
+        double weightedSum = 0;
+        double totalWeight = 0;
+        for (Assignment assignment : assignments) {
+            weightedSum += assignment.grade * assignment.weight;
+            totalWeight += assignment.weight;
         }
-        double average = sum / grades.size();
-        System.out.println("Average grade for " + name + ": " + average);
+
+        if (totalWeight == 0) {
+            System.out.println("Total weight is zero, cannot calculate average.");
+            return;
+        }
+
+        double weightedAverage = weightedSum / totalWeight;
+        System.out.println("Weighted average grade for " + name + ": " + weightedAverage);
     }
 
     private static void displayAllGrades() {
         if (studentGrades.isEmpty()) {
-            System.out.println("No students or grades found.");
+            System.out.println("No students or assignments found.");
             return;
         }
-        for (Map.Entry<String, List<Integer>> entry : studentGrades.entrySet()) {
+        for (Map.Entry<String, List<Assignment>> entry : studentGrades.entrySet()) {
             String name = entry.getKey();
-            List<Integer> grades = entry.getValue();
-            double average = 0;
-            if (!grades.isEmpty()) {
-                double sum = 0;
-                for (int grade : grades) {
-                    sum += grade;
-                }
-                average = sum / grades.size();
+            List<Assignment> assignments = entry.getValue();
+            double weightedAverage = 0;
+            double weightedSum = 0;
+            double totalWeight = 0;
+
+            for(Assignment a : assignments){
+                weightedSum += a.grade * a.weight;
+                totalWeight += a.weight;
             }
-            System.out.println(name + ": " + grades + ", Average: " + average);
+
+            if(totalWeight > 0){
+                weightedAverage = weightedSum / totalWeight;
+            }
+
+            System.out.println(name + ": " + assignments + ", Weighted Average: " + weightedAverage);
         }
     }
 }
