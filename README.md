@@ -1,18 +1,24 @@
-## Getting Started
+# Overview
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+I wrote a simple gradebook to demonstrate my skill in Java. It allows you to add students, assignments and grades, You can also update those grades if needed.
 
-## Folder Structure
+My purpose in writing this software is to make it so that either a teacher or a student can calculate their grade based on the work they put in.
 
-The workspace contains two folders by default, where:
+[Software Demo Video](https://youtu.be/BD9pNTgxcys)
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+# Development Environment
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+In this I used VS Code and the tools they provide on their site such as the JDK (Java Development Kit) they provide and some of the extensions they suggest from Microsoft.
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+Java is a lot of fun and in VS code it has a nice look as well. It uses similar classes as other coding languages so it was interesting to see how Java puts them to use.
 
-## Dependency Management
+# Useful Websites
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+- [Visual Studio Java Tutorial](https://code.visualstudio.com/docs/java/java-tutorial)
+- [W3 Schools](https://www.w3schools.com/java/default.asp)
+
+# Future Work
+
+- Adding a way for Gradebooks to be saved and added upon.
+- Importing a list of students.
+- Making a more visual interface.
